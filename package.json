@@ -2,6 +2,7 @@
   "name": "qrpayments",
   "version": "0.1.0",
   "private": true,
+  "start": "HTTPS=true react-scripts start",
   "dependencies": {
     "cra-template": "1.2.0",
     "ethers": "^5.7.2",
