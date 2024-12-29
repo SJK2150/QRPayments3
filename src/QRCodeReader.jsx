@@ -10,51 +10,48 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
 
   const videoRef = useRef(null);
 
-  
-
   const requestCameraPermission = useCallback(async () => {
-  try {
-    // Enumerate devices to find the back camera
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const backCamera = devices.find(
-      (device) => device.kind === "videoinput" && device.label.toLowerCase().includes("back")
-    );
+    try {
+      // Enumerate devices to find the back camera
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const backCamera = devices.find(
+        (device) => device.kind === "videoinput" && device.label.toLowerCase().includes("back")
+      );
 
-    // If no back camera is found, fall back to front camera
-    const videoDevice = backCamera || devices.find((device) => device.kind === "videoinput");
+      // If no back camera is found, fall back to front camera
+      const videoDevice = backCamera || devices.find((device) => device.kind === "videoinput");
 
-    if (videoDevice) {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          deviceId: videoDevice.deviceId,  // Set the back camera or first available camera
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-      });
+      if (videoDevice) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            deviceId: videoDevice.deviceId,  // Set the back camera or first available camera
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+        });
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play().catch((err) => {
-            if (err.name !== "AbortError") {
-              console.error("Error playing video:", err);
-            }
-          });
-        };
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current.play().catch((err) => {
+              if (err.name !== "AbortError") {
+                console.error("Error playing video:", err);
+              }
+            });
+          };
+        }
+
+        setCameraAccessGranted(true);
+        setError(null);
+      } else {
+        console.error("No camera found.");
+        setError("No video input devices found.");
       }
-
-      setCameraAccessGranted(true);
-      setError(null);
-    } else {
-      console.error("No camera found.");
-      setError("No video input devices found.");
+    } catch (err) {
+      console.error("Camera permission error:", err);
+      setError("Camera access denied. Please grant camera permission.");
     }
-  } catch (err) {
-    console.error("Camera permission error:", err);
-    setError("Camera access denied. Please grant camera permission.");
-  }
-}, []);
-
+  }, []);
 
   const stopCamera = useCallback(() => {
     const tracks = document.querySelector("video")?.srcObject?.getTracks();
@@ -106,7 +103,7 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
 
   const handlePayment = async () => {
     console.log("Payment initiated with data:", qrCodeData);
-    
+
     if (!qrCodeData) {
       console.error("No QR code data available");
       setError("No QR code data available for payment.");
@@ -115,12 +112,12 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
 
     const { receiver, amount: qrAmount } = qrCodeData;
     const finalAmount = qrAmount || amount;
-    
+
     console.log("Processing payment:", {
       receiver,
       qrAmount,
       userAmount: amount,
-      finalAmount
+      finalAmount,
     });
 
     try {
@@ -151,19 +148,19 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
       // Initialize provider
       console.log("Initializing Web3 provider");
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      
+
       // Request account access
       console.log("Requesting account access");
       await provider.send("eth_requestAccounts", []);
-      
+
       // Get signer
       console.log("Getting signer");
       const signer = await provider.getSigner();
-      
+
       // Convert amount to Wei
       console.log("Converting amount to Wei:", finalAmount);
       const amountInWei = ethers.utils.parseEther(finalAmount.toString());
-      
+
       // Prepare transaction
       console.log("Preparing transaction");
       const transaction = {
@@ -175,7 +172,7 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
       // Send transaction
       console.log("Sending transaction");
       const tx = await signer.sendTransaction(transaction);
-      
+
       console.log("Transaction sent successfully:", tx);
       alert(`Transaction sent! TX Hash: ${tx.hash}`);
     } catch (err) {
@@ -235,4 +232,5 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
 };
 
 export default QRCodeReader;
+
 
