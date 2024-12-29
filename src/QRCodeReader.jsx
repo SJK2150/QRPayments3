@@ -190,11 +190,7 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
         </div>
       )}
 
-      {error && (
-        <div style={{ color: "red" }}>
-          <p>{error}</p>
-        </div>
-      )}
+      
 
       {defaultQR && !qrCodeData && (
         <div>
