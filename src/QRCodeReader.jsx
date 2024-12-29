@@ -10,10 +10,26 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
 
   const videoRef = useRef(null);
 
+  
+
   const requestCameraPermission = useCallback(async () => {
-    try {
+  try {
+    // Enumerate devices to find the back camera
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const backCamera = devices.find(
+      (device) => device.kind === "videoinput" && device.label.toLowerCase().includes("back")
+    );
+
+    // If no back camera is found, fall back to front camera
+    const videoDevice = backCamera || devices.find((device) => device.kind === "videoinput");
+
+    if (videoDevice) {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: { 
+          deviceId: videoDevice.deviceId,  // Set the back camera or first available camera
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
       });
 
       if (videoRef.current) {
@@ -29,11 +45,16 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
 
       setCameraAccessGranted(true);
       setError(null);
-    } catch (err) {
-      console.error("Camera permission error:", err);
-      setError("Camera access denied. Please grant camera permission.");
+    } else {
+      console.error("No camera found.");
+      setError("No video input devices found.");
     }
-  }, []);
+  } catch (err) {
+    console.error("Camera permission error:", err);
+    setError("Camera access denied. Please grant camera permission.");
+  }
+}, []);
+
 
   const stopCamera = useCallback(() => {
     const tracks = document.querySelector("video")?.srcObject?.getTracks();
