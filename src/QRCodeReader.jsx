@@ -44,23 +44,20 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
     return () => stopCamera();
   }, [requestCameraPermission, stopCamera]);
 
-  const handleScan = useCallback(
-    (data) => {
-      if (data) {
-        try {
-          const parsedData = JSON.parse(data);
-          setQrCodeData(parsedData);
-          stopCamera();
-          onScan(parsedData);
-          console.log("Scanned QR Code Data:", parsedData);
-        } catch (err) {
-          console.error("Error parsing QR code data:", err);
-          setError("Invalid QR code data format.");
-        }
+  const handleScan = useCallback((data) => {
+    if (data) {
+      try {
+        const parsedData = JSON.parse(data);
+        setQrCodeData(parsedData);
+        stopCamera();
+        onScan(parsedData);
+        console.log("Scanned QR Code Data:", parsedData);
+      } catch (err) {
+        console.error("Error parsing QR code data:", err);
+        setError("Invalid QR code data format.");
       }
-    },
-    [onScan, stopCamera]
-  );
+    }
+  }, [onScan, stopCamera]);
 
   const handleError = useCallback((err) => {
     console.error("QR code scan error:", err);
@@ -78,6 +75,7 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
     try {
       const parsedData = JSON.parse(defaultQR);
       setQrCodeData(parsedData);
+      onScan(parsedData);
     } catch (err) {
       console.error("Error parsing default QR code data:", err);
       setError("Invalid default QR code format.");
@@ -85,44 +83,82 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
   };
 
   const handlePayment = async () => {
-    if (qrCodeData) {
-      const { receiver, amount: qrAmount } = qrCodeData;
-      const finalAmount = qrAmount || amount; 
+    console.log("Payment initiated with data:", qrCodeData);
+    
+    if (!qrCodeData) {
+      console.error("No QR code data available");
+      setError("No QR code data available for payment.");
+      return;
+    }
 
+    const { receiver, amount: qrAmount } = qrCodeData;
+    const finalAmount = qrAmount || amount;
+    
+    console.log("Processing payment:", {
+      receiver,
+      qrAmount,
+      userAmount: amount,
+      finalAmount
+    });
+
+    try {
+      // Check MetaMask installation
+      if (!window.ethereum) {
+        console.error("MetaMask not found");
+        alert("MetaMask is not installed. Please install it to proceed.");
+        return;
+      }
+      console.log("MetaMask detected");
+
+      // Validate address
       if (!ethers.utils.isAddress(receiver)) {
+        console.error("Invalid address:", receiver);
         setError("Invalid Ethereum address.");
         return;
       }
+      console.log("Address validated");
 
+      // Validate amount
       if (!finalAmount || isNaN(finalAmount) || parseFloat(finalAmount) <= 0) {
+        console.error("Invalid amount:", finalAmount);
         setError("Enter a valid amount.");
         return;
       }
+      console.log("Amount validated");
 
-      try {
-        if (!window.ethereum) {
-          alert("MetaMask is not installed. Please install it to proceed.");
-          return;
-        }
+      // Initialize provider
+      console.log("Initializing Web3 provider");
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      
+      // Request account access
+      console.log("Requesting account access");
+      await provider.send("eth_requestAccounts", []);
+      
+      // Get signer
+      console.log("Getting signer");
+      const signer = await provider.getSigner();
+      
+      // Convert amount to Wei
+      console.log("Converting amount to Wei:", finalAmount);
+      const amountInWei = ethers.utils.parseEther(finalAmount.toString());
+      
+      // Prepare transaction
+      console.log("Preparing transaction");
+      const transaction = {
+        to: receiver,
+        value: amountInWei,
+      };
+      console.log("Transaction details:", transaction);
 
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = await provider.getSigner();
-        const amountInWei = ethers.utils.parseEther(finalAmount);
-
-        const tx = await signer.sendTransaction({
-          to: receiver,
-          value: amountInWei,
-        });
-
-        console.log("Transaction sent:", tx);
-        alert(`Transaction sent! TX Hash: ${tx.hash}`);
-      } catch (err) {
-        console.error("Payment error:", err);
-        setError("Payment failed. Please try again.");
-      }
-    } else {
-      setError("No QR code data available for payment.");
+      // Send transaction
+      console.log("Sending transaction");
+      const tx = await signer.sendTransaction(transaction);
+      
+      console.log("Transaction sent successfully:", tx);
+      alert(`Transaction sent! TX Hash: ${tx.hash}`);
+    } catch (err) {
+      console.error("Detailed payment error:", err);
+      setError(`Payment failed: ${err.message || 'Unknown error'}`);
     }
   };
 
@@ -151,6 +187,7 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
             muted
           ></video>
           <QrReader
+            legacyMode={false}
             delay={300}
             onScan={handleScan}
             onError={handleError}
