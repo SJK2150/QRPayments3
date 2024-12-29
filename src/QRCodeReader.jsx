@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { QrReader } from "react-qr-reader";
+import  QrReader  from "react-qr-reader";
 import { ethers } from "ethers";
 
 const QRCodeReader = ({ onScan, defaultQR }) => {
