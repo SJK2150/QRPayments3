@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import  QrReader  from "react-qr-reader";
 import { ethers } from "ethers";
+import QrReader from "react-qr-reader";
 
-const QRCodeReader = ({ onScan, defaultQR }) => {
+const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
   const [cameraAccessGranted, setCameraAccessGranted] = useState(false);
   const [error, setError] = useState(null);
   const [qrCodeData, setQrCodeData] = useState(null);
-  const [amount, setAmount] = useState(""); // User-input for the transaction amount
+  const [amount, setAmount] = useState("");
   const videoRef = useRef(null);
 
   const requestCameraPermission = useCallback(async () => {
@@ -45,19 +45,13 @@ const QRCodeReader = ({ onScan, defaultQR }) => {
   }, [requestCameraPermission, stopCamera]);
 
   const handleScan = useCallback(
-    (result) => {
-      if (result) {
+    (data) => {
+      if (data) {
         try {
-          const scannedData = result.getText();
-          const parsedData = JSON.parse(scannedData);
+          const parsedData = JSON.parse(data);
           setQrCodeData(parsedData);
-
-          stopCamera();  // Stop the camera after scan
-
-          if (onScan) {
-            onScan(parsedData);
-          }
-
+          stopCamera();
+          onScan(parsedData);
           console.log("Scanned QR Code Data:", parsedData);
         } catch (err) {
           console.error("Error parsing QR code data:", err);
@@ -111,10 +105,10 @@ const QRCodeReader = ({ onScan, defaultQR }) => {
           return;
         }
 
-        const provider = new ethers.providers.Web3Provider(window.ethereum); // Updated provider
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         const signer = await provider.getSigner();
-        const amountInWei = ethers.utils.parseEther(finalAmount); // Updated method
+        const amountInWei = ethers.utils.parseEther(finalAmount);
 
         const tx = await signer.sendTransaction({
           to: receiver,
@@ -157,11 +151,10 @@ const QRCodeReader = ({ onScan, defaultQR }) => {
             muted
           ></video>
           <QrReader
-            constraints={{ facingMode: "environment" }}
-            scanDelay={300}
-            onResult={handleScan}
+            delay={300}
+            onScan={handleScan}
             onError={handleError}
-            videoStyle={{ width: "100%" }}
+            style={{ width: "100%" }}
           />
         </div>
       )}
