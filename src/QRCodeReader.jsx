@@ -176,17 +176,7 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
       {!qrCodeData && (
         <div>
           <h3>Live Camera Feed</h3>
-          <video
-            ref={videoRef}
-            style={{
-              width: "100%",
-              height: "300px",
-              border: "1px solid black",
-            }}
-            autoPlay
-            playsInline
-            muted
-          ></video>
+          
           <QrReader
             legacyMode={false}
             delay={300}
