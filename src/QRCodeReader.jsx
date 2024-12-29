@@ -8,11 +8,25 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
   const [qrCodeData, setQrCodeData] = useState(null);
   const [amount, setAmount] = useState("");
 
+  const videoRef = useRef(null);
+
   const requestCameraPermission = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1280 }, height: { ideal: 720 } },
       });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play().catch((err) => {
+            if (err.name !== "AbortError") {
+              console.error("Error playing video:", err);
+            }
+          });
+        };
+      }
+
       setCameraAccessGranted(true);
       setError(null);
     } catch (err) {
@@ -22,7 +36,6 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
   }, []);
 
   const stopCamera = useCallback(() => {
-    // Stopping the camera feed logic here
     const tracks = document.querySelector("video")?.srcObject?.getTracks();
     tracks?.forEach((track) => track.stop());
   }, []);
@@ -163,6 +176,17 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
       {!qrCodeData && (
         <div>
           <h3>Live Camera Feed</h3>
+          <video
+            ref={videoRef}
+            style={{
+              width: "100%",
+              height: "300px",
+              border: "1px solid black",
+            }}
+            autoPlay
+            playsInline
+            muted
+          ></video>
           <QrReader
             legacyMode={false}
             delay={300}
@@ -190,8 +214,6 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
         </div>
       )}
 
-      
-
       {defaultQR && !qrCodeData && (
         <div>
           <button onClick={scanDefaultQR}>Scan Default QR</button>
@@ -202,3 +224,4 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
 };
 
 export default QRCodeReader;
+
