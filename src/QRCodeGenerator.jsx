@@ -12,7 +12,7 @@ const QRCodeGenerator = ({ contractAddress }) => {
     const fetchWalletAddress = async () => {
       if (window.ethereum) {
         try {
-          const provider = new ethers.providers.Web3Provider(window.ethereum);  // Updated provider
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
           const signer = await provider.getSigner();
           const address = await signer.getAddress();
           setReceiverAddress(address);
@@ -24,23 +24,19 @@ const QRCodeGenerator = ({ contractAddress }) => {
     };
 
     const stopCamera = () => {
-      // Stop any active video streams
       navigator.mediaDevices?.getUserMedia({ video: true })
         .then((stream) => {
           stream.getTracks().forEach((track) => track.stop());
         })
         .catch((err) => {
-          // Ignore errors if no camera is active
           console.log("No active camera to stop:", err.message);
         });
     };
 
-    // Stop the camera when this component mounts
     stopCamera();
     fetchWalletAddress();
 
     return () => {
-      // Ensure camera is stopped when component unmounts
       stopCamera();
     };
   }, []);
@@ -61,82 +57,129 @@ const QRCodeGenerator = ({ contractAddress }) => {
     }
   };
 
+  const containerStyle = {
+    backgroundImage: 'url("/background.png")',
+    backgroundColor: "#0B062B",
+    backgroundSize: "cover",
+    color: "white",
+    padding: "20px",
+    borderRadius: "15px",
+    maxWidth: "600px",
+    margin: "auto",
+    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+  };
+
+  const buttonStyle = {
+    backgroundColor: "#4CAF50",
+    color: "white",
+    padding: "10px 20px",
+    borderRadius: "5px",
+    border: "none",
+    cursor: "pointer",
+    margin: "5px",
+    transition: "background-color 0.3s",
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "12px",
+    marginBottom: "15px",
+    borderRadius: "5px",
+    border: "1px solid #2d2d2d",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    color: "white",
+    outline: "none",
+  };
+
+  const qrContainerStyle = {
+    backgroundColor: "white",
+    padding: "20px",
+    borderRadius: "10px",
+    display: "inline-block",
+    margin: "20px 0",
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <h2 className="text-2xl font-bold mb-4 text-blue-600">Generate QR Code</h2>
+    <div style={containerStyle}>
+      <h2 style={{ textAlign: "center", marginBottom: "20px", fontSize: "24px" }}>
+        Generate QR Code
+      </h2>
 
       {!walletConnected ? (
         <button
           onClick={connectWallet}
-          className="p-2 mb-4 bg-blue-600 text-white rounded"
+          style={{ ...buttonStyle, backgroundColor: "#2196F3" }}
         >
           Connect Wallet
         </button>
       ) : (
-        <p className="text-green-500 mb-4">Wallet Connected</p>
+        <p style={{ color: "#4CAF50", marginBottom: "15px", textAlign: "center" }}>
+          Wallet Connected
+        </p>
       )}
 
-      <div className="flex space-x-4 mb-6">
+      <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
         <button
           onClick={() => setShowDefaultQR(false)}
-          className={`p-2 rounded ${!showDefaultQR ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+          style={{
+            ...buttonStyle,
+            backgroundColor: !showDefaultQR ? "#2196F3" : "#666",
+          }}
         >
           QR with Amount
         </button>
         <button
           onClick={() => setShowDefaultQR(true)}
-          className={`p-2 rounded ${showDefaultQR ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+          style={{
+            ...buttonStyle,
+            backgroundColor: showDefaultQR ? "#2196F3" : "#666",
+          }}
         >
           Default QR
         </button>
       </div>
 
-      {!showDefaultQR ? (
+      {!showDefaultQR && (
         <>
           <input
             type="text"
             placeholder="Receiver Address"
             value={receiverAddress}
             onChange={(e) => setReceiverAddress(e.target.value)}
-            className="w-full max-w-md p-2 mb-3 border border-gray-300 rounded"
+            style={inputStyle}
           />
           <input
             type="text"
             placeholder="Amount (ETH)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full max-w-md p-2 mb-3 border border-gray-300 rounded"
+            style={inputStyle}
           />
-          {receiverAddress && amount ? (
-            <div className="flex justify-center items-center mt-4 bg-white p-4 rounded-lg shadow-lg">
-              <QRCodeCanvas
-                value={JSON.stringify({
-                  contract: contractAddress,
-                  receiver: receiverAddress,
-                  amount,
-                })}
-                size={200}
-              />
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">Fill in the details to generate a QR code</p>
-          )}
         </>
-      ) : (
-        <div className="flex justify-center items-center mt-4 bg-white p-4 rounded-lg shadow-lg">
-          {receiverAddress ? (
+      )}
+
+      <div style={{ textAlign: "center" }}>
+        {receiverAddress && (!showDefaultQR ? amount : true) ? (
+          <div style={qrContainerStyle}>
             <QRCodeCanvas
               value={JSON.stringify({
                 contract: contractAddress,
                 receiver: receiverAddress,
+                ...(showDefaultQR ? {} : { amount }),
               })}
               size={200}
+              level="H"
+              includeMargin={true}
             />
-          ) : (
-            <p className="text-sm text-gray-500">Connect your wallet to generate the default QR code</p>
-          )}
-        </div>
-      )}
+          </div>
+        ) : (
+          <p style={{ color: "#888", fontSize: "14px" }}>
+            {walletConnected
+              ? "Fill in the details to generate a QR code"
+              : "Connect your wallet to generate the QR code"}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
