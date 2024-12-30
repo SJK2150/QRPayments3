@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ethers } from "ethers";
-import QrReader from "react-qr-reader";
+import QrReader from "react-qr-scanner";
 
 const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
   const [cameraAccessGranted, setCameraAccessGranted] = useState(false);
