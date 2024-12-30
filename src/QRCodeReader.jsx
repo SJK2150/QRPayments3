@@ -182,51 +182,92 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
   };
 
   return (
-    <div className="qr-reader">
-      <h2>Scan QR Code</h2>
+    <div
+      className="min-h-screen w-full py-8 px-4"
+      style={{
+        backgroundImage: 'url("/background.png")',
+        backgroundColor: "#0B062B",
+      }}
+    >
+      <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-2xl">
+        <h2 className="text-3xl font-bold mb-6 text-white text-center">Scan QR Code</h2>
 
-      {!cameraAccessGranted && (
-        <p style={{ color: "red" }}>
-          Camera permission is required to scan the QR code.
-        </p>
-      )}
+        {!cameraAccessGranted && (
+          <p className="text-red-500 text-center mb-4">
+            Camera permission is required to scan the QR code.
+          </p>
+        )}
 
-      {!qrCodeData && (
-        <div>
-          <h3>Live Camera Feed</h3>
-          
-          <QrReader
-            legacyMode={false}
-            delay={300}
-            onScan={handleScan}
-            onError={handleError}
-            style={{ width: "100%" }}
-          />
-        </div>
-      )}
+        {error && (
+          <p className="text-red-500 text-center mb-4">{error}</p>
+        )}
 
-      {qrCodeData && (
-        <div>
-          <h3>Scanned QR Code Data</h3>
-          <pre>{JSON.stringify(qrCodeData, null, 2)}</pre>
-          {!qrCodeData.amount && (
-            <input
-              type="text"
-              placeholder="Enter amount (ETH)"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          )}
-          <button onClick={handlePayment}>Pay</button>
-          <button onClick={resetScanner}>Scan Again</button>
-        </div>
-      )}
+        {!qrCodeData && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-white text-center">Live Camera Feed</h3>
 
-      {defaultQR && !qrCodeData && (
-        <div>
-          <button onClick={scanDefaultQR}>Scan Default QR</button>
-        </div>
-      )}
+            <div className="rounded-xl overflow-hidden">
+              <QrReader
+                legacyMode={false}
+                delay={300}
+                onScan={handleScan}
+                onError={handleError}
+                style={{ width: "100%" }}
+              />
+            </div>
+          </div>
+        )}
+
+        {qrCodeData && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-white text-center">Transaction Details</h3>
+            <div className="bg-white/20 p-4 rounded-lg text-white text-center">
+              <p className="text-lg font-semibold">Receiver Address:</p>
+              <p className="text-base">{qrCodeData.receiver}</p>
+            </div>
+            <div className="bg-white/20 p-4 rounded-lg text-white text-center">
+              <p className="text-lg font-semibold">Amount:</p>
+              <p className="text-4xl font-extrabold text-green-400">
+                {qrCodeData.amount || amount || "0.00"} ETH
+              </p>
+            </div>
+            {!qrCodeData.amount && (
+              <input
+                type="text"
+                placeholder="Enter amount (ETH)"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
+              />
+            )}
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={handlePayment}
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Pay
+              </button>
+              <button
+                onClick={resetScanner}
+                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Scan Again
+              </button>
+            </div>
+          </div>
+        )}
+
+        {defaultQR && !qrCodeData && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={scanDefaultQR}
+              className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            >
+              Scan Default QR
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
