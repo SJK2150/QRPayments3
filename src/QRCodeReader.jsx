@@ -161,6 +161,15 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
     }
   };
 
+  // Function to restrict input to numbers only
+  const handleAmountChange = (e) => {
+    // Allow only numbers, and optionally allow a decimal point
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) {
+      setAmount(value);
+    }
+  };
+
   return (
     <div
       style={{
@@ -211,14 +220,14 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
             </div>
             {!qrCodeData.amount && (
               <div className="flex justify-center">
-              <input
-                type="text"
-                placeholder="Enter amount (ETH)"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-60 px-6 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
-              />
-            </div>
+                <input
+                  type="text"
+                  placeholder="Enter amount (ETH)"
+                  value={amount}
+                  onChange={handleAmountChange} // Use the updated onChange handler
+                  className="w-60 px-6 py-2 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+                />
+              </div>
             )}
             <div className="flex gap-3 justify-center">
               <button
