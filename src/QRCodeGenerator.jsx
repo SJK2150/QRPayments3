@@ -241,6 +241,3 @@ const QRCodeGenerator = ({ contractAddress }) => {
 export default QRCodeGenerator;
 
 
-export default QRCodeGenerator;
-
-
