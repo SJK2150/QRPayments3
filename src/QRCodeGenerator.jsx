@@ -133,9 +133,17 @@ const QRCodeGenerator = ({ contractAddress }) => {
     border: "2px solid #2196F3", // Blue border
     cursor: "pointer",
     margin: "5px",
-    opacity: 0.7, // Set opacity to 0.7 for transparency effect
-    transition: "opacity 0.3s ease-in-out", // Smooth transition for opacity change
+    opacity: 0.8, // Set opacity to 0.8 for transparency effect
+    transition: "opacity 0.3s ease-in-out, background 0.3s ease-in-out", // Smooth transition for opacity and background change
   };
+  
+  // Hover effect for the button
+  const transparentButtonHoverStyle = {
+    ...transparentButtonStyle,
+    opacity: 1, // Full opacity on hover
+    background: "rgba(33, 150, 243, 0.1)", // Add a subtle blue background when hovered
+  };
+  
 
   const qrContainerStyle = {
     backgroundColor: "white",
@@ -152,19 +160,22 @@ const QRCodeGenerator = ({ contractAddress }) => {
       </h2>
 
       {!walletConnected ? (
-        <div style={{ textAlign: "center" }}>
-          <button
-            onClick={connectWallet}
-            style={{transparentButtonStyle}}
-          >
-            Connect Wallet
-          </button>
-        </div>
-      ) : (
-        <p style={{ color: "#4CAF50", marginBottom: "15px", textAlign: "center" }}>
-          Wallet Connected
-        </p>
-      )}
+  <div style={{ textAlign: "center" }}>
+    <button
+      onClick={connectWallet}
+      style={transparentButtonStyle} // Apply transparent button style
+      onMouseEnter={(e) => e.target.style.opacity = 1} // Change opacity on hover
+      onMouseLeave={(e) => e.target.style.opacity = 0.8} // Revert opacity after hover
+    >
+      Connect Wallet
+    </button>
+  </div>
+) : (
+  <p style={{ color: "#4CAF50", marginBottom: "15px", textAlign: "center" }}>
+    Wallet Connected
+  </p>
+)}
+
 
       <div style={buttonContainerStyle}>
         <button
