@@ -262,3 +262,4 @@ const QRCodeReader = ({ onScan = () => {}, defaultQR }) => {
 };
 
 export default QRCodeReader;
+
