@@ -125,6 +125,17 @@ const QRCodeGenerator = ({ contractAddress }) => {
     color: "white",
     outline: "none",
   };
+  const transparentButtonStyle = {
+    background: "transparent", // Transparent background
+    color: "#2196F3", // Blue color for the text
+    padding: "10px 20px",
+    borderRadius: "5px",
+    border: "2px solid #2196F3", // Blue border
+    cursor: "pointer",
+    margin: "5px",
+    opacity: 0.7, // Set opacity to 0.7 for transparency effect
+    transition: "opacity 0.3s ease-in-out", // Smooth transition for opacity change
+  };
 
   const qrContainerStyle = {
     backgroundColor: "white",
@@ -144,7 +155,7 @@ const QRCodeGenerator = ({ contractAddress }) => {
         <div style={{ textAlign: "center" }}>
           <button
             onClick={connectWallet}
-            style={{ ...buttonStyle, backgroundColor: "#2196F3" }}
+            style={{transparentButtonStyle}}
           >
             Connect Wallet
           </button>
@@ -226,6 +237,9 @@ const QRCodeGenerator = ({ contractAddress }) => {
     </div>
   );
 };
+
+export default QRCodeGenerator;
+
 
 export default QRCodeGenerator;
 
