@@ -118,26 +118,29 @@ const QRCodeGenerator = ({ contractAddress }) => {
         </p>
       )}
 
-      <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
-        <button
-          onClick={() => setShowDefaultQR(false)}
-          style={{
-            ...buttonStyle,
-            backgroundColor: !showDefaultQR ? "#2196F3" : "#666",
-          }}
-        >
-          QR with Amount
-        </button>
-        <button
-          onClick={() => setShowDefaultQR(true)}
-          style={{
-            ...buttonStyle,
-            backgroundColor: showDefaultQR ? "#2196F3" : "#666",
-          }}
-        >
-          Default QR
-        </button>
-      </div>
+<div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
+  <button
+    onClick={() => setShowDefaultQR(false)}
+    style={{
+      ...buttonStyle,
+      backgroundColor: !showDefaultQR ? "#2196F3" : "#666",
+      width: "150px", // Set width for both buttons
+    }}
+  >
+    QR with Amount
+  </button>
+  <button
+    onClick={() => setShowDefaultQR(true)}
+    style={{
+      ...buttonStyle,
+      backgroundColor: showDefaultQR ? "#2196F3" : "#666",
+      width: "150px", // Set width for both buttons
+    }}
+  >
+    Default QR
+  </button>
+</div>
+
 
       {!showDefaultQR && (
         <>
