@@ -8,6 +8,7 @@ const QRCodeGenerator = ({ contractAddress }) => {
   const [walletConnected, setWalletConnected] = useState(false);
   const [showDefaultQR, setShowDefaultQR] = useState(false);
   const [isValidAddress, setIsValidAddress] = useState(true);
+  const [selectedButton, setSelectedButton] = useState(null); // Track selected button
 
   useEffect(() => {
     const fetchWalletAddress = async () => {
@@ -72,6 +73,35 @@ const QRCodeGenerator = ({ contractAddress }) => {
     // Validate the address
     setIsValidAddress(ethers.utils.isAddress(value));
   };
+  const buttonStyle = {
+    background: "linear-gradient(to bottom, #00BFFF, #1E90FF)", // Brighter blue gradient from top to bottom
+    color: "white",
+    padding: "10px 20px",
+    borderRadius: "5px",
+    border: "none",
+    cursor: "pointer",
+    margin: "5px",
+    transition: "all 0.3s ease-in-out", // Smooth transition for hover
+  };
+  
+  const buttonHoverStyle = {
+    background: "linear-gradient(to bottom, #1E90FF, #00BFFF)", // Reversed gradient on hover for effect
+    backgroundPosition: "bottom center",
+  };
+  
+  const selectedButtonStyle = {
+    ...buttonStyle,
+    border: "2px solid #FFD700", // Gold border for the selected button
+    boxShadow: "0px 0px 10px rgba(255, 215, 0, 0.5)", // Gold glow effect to highlight the selected button
+  };
+  
+  const buttonContainerStyle = {
+    display: "flex",
+    justifyContent: "center",
+    gap: "10px",
+    marginBottom: "20px",
+  };
+  
 
   const containerStyle = {
     backgroundImage: 'url("/background.png")',
@@ -83,17 +113,6 @@ const QRCodeGenerator = ({ contractAddress }) => {
     maxWidth: "600px",
     margin: "auto",
     boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
-  };
-
-  const buttonStyle = {
-    backgroundColor: "#4CAF50",
-    color: "white",
-    padding: "10px 20px",
-    borderRadius: "5px",
-    border: "none",
-    cursor: "pointer",
-    margin: "5px",
-    transition: "background-color 0.3s",
   };
 
   const inputStyle = {
@@ -136,24 +155,22 @@ const QRCodeGenerator = ({ contractAddress }) => {
         </p>
       )}
 
-      <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
+      <div style={buttonContainerStyle}>
         <button
-          onClick={() => setShowDefaultQR(false)}
-          style={{
-            ...buttonStyle,
-            backgroundColor: !showDefaultQR ? "#2196F3" : "#666",
-            width: "150px", // Set width for both buttons
+          onClick={() => {
+            setShowDefaultQR(false);
+            setSelectedButton("QRwithAmount"); // Set selected button
           }}
+          style={selectedButton === "QRwithAmount" ? selectedButtonStyle : buttonStyle} // Apply highlighted border if selected
         >
           QR with Amount
         </button>
         <button
-          onClick={() => setShowDefaultQR(true)}
-          style={{
-            ...buttonStyle,
-            backgroundColor: showDefaultQR ? "#2196F3" : "#666",
-            width: "150px", // Set width for both buttons
+          onClick={() => {
+            setShowDefaultQR(true);
+            setSelectedButton("DefaultQR"); // Set selected button
           }}
+          style={selectedButton === "DefaultQR" ? selectedButtonStyle : buttonStyle} // Apply highlighted border if selected
         >
           Default QR
         </button>
@@ -211,4 +228,5 @@ const QRCodeGenerator = ({ contractAddress }) => {
 };
 
 export default QRCodeGenerator;
+
 
