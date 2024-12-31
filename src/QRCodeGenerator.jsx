@@ -7,6 +7,7 @@ const QRCodeGenerator = ({ contractAddress }) => {
   const [amount, setAmount] = useState("");
   const [walletConnected, setWalletConnected] = useState(false);
   const [showDefaultQR, setShowDefaultQR] = useState(false);
+  const [isValidAddress, setIsValidAddress] = useState(true);
 
   useEffect(() => {
     const fetchWalletAddress = async () => {
@@ -55,6 +56,21 @@ const QRCodeGenerator = ({ contractAddress }) => {
     } catch (err) {
       console.error("Error connecting wallet:", err);
     }
+  };
+
+  const handleAmountChange = (e) => {
+    // Allow only numbers and a single decimal point
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) {
+      setAmount(value);
+    }
+  };
+
+  const handleReceiverAddressChange = (e) => {
+    const value = e.target.value;
+    setReceiverAddress(value);
+    // Validate the address
+    setIsValidAddress(ethers.utils.isAddress(value));
   };
 
   const containerStyle = {
@@ -106,41 +122,42 @@ const QRCodeGenerator = ({ contractAddress }) => {
       </h2>
 
       {!walletConnected ? (
-        <button
-          onClick={connectWallet}
-          style={{ ...buttonStyle, backgroundColor: "#2196F3" }}
-        >
-          Connect Wallet
-        </button>
+        <div style={{ textAlign: "center" }}>
+          <button
+            onClick={connectWallet}
+            style={{ ...buttonStyle, backgroundColor: "#2196F3" }}
+          >
+            Connect Wallet
+          </button>
+        </div>
       ) : (
         <p style={{ color: "#4CAF50", marginBottom: "15px", textAlign: "center" }}>
           Wallet Connected
         </p>
       )}
 
-<div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
-  <button
-    onClick={() => setShowDefaultQR(false)}
-    style={{
-      ...buttonStyle,
-      backgroundColor: !showDefaultQR ? "#2196F3" : "#666",
-      width: "150px", // Set width for both buttons
-    }}
-  >
-    QR with Amount
-  </button>
-  <button
-    onClick={() => setShowDefaultQR(true)}
-    style={{
-      ...buttonStyle,
-      backgroundColor: showDefaultQR ? "#2196F3" : "#666",
-      width: "150px", // Set width for both buttons
-    }}
-  >
-    Default QR
-  </button>
-</div>
-
+      <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
+        <button
+          onClick={() => setShowDefaultQR(false)}
+          style={{
+            ...buttonStyle,
+            backgroundColor: !showDefaultQR ? "#2196F3" : "#666",
+            width: "150px", // Set width for both buttons
+          }}
+        >
+          QR with Amount
+        </button>
+        <button
+          onClick={() => setShowDefaultQR(true)}
+          style={{
+            ...buttonStyle,
+            backgroundColor: showDefaultQR ? "#2196F3" : "#666",
+            width: "150px", // Set width for both buttons
+          }}
+        >
+          Default QR
+        </button>
+      </div>
 
       {!showDefaultQR && (
         <>
@@ -148,21 +165,27 @@ const QRCodeGenerator = ({ contractAddress }) => {
             type="text"
             placeholder="Receiver Address"
             value={receiverAddress}
-            onChange={(e) => setReceiverAddress(e.target.value)}
+            onChange={handleReceiverAddressChange}
             style={inputStyle}
           />
+          {!isValidAddress && receiverAddress && (
+            <p style={{ color: "red", fontSize: "14px" }}>
+              Invalid Ethereum address.
+            </p>
+          )}
+
           <input
             type="text"
             placeholder="Amount (ETH)"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={handleAmountChange}
             style={inputStyle}
           />
         </>
       )}
 
       <div style={{ textAlign: "center" }}>
-        {receiverAddress && (!showDefaultQR ? amount : true) ? (
+        {receiverAddress && isValidAddress && (!showDefaultQR ? amount : true) ? (
           <div style={qrContainerStyle}>
             <QRCodeCanvas
               value={JSON.stringify({
@@ -188,3 +211,4 @@ const QRCodeGenerator = ({ contractAddress }) => {
 };
 
 export default QRCodeGenerator;
+
