@@ -1,31 +1,20 @@
 import React, { useState } from "react";
 import QRCodeGenerator from "./QRCodeGenerator";
 import QRCodeReader from "./QRCodeReader";
-import backgroundImage from "./background.png"; // Import the image
-
-const ActionButton = ({ label, onClick, isActive }) => (
-  <button
-    onClick={onClick}
-    className={`px-8 py-4 bg-blue-300 hover:bg-blue-400 
-    rounded-xl transition-all duration-300 text-white font-semibold text-lg
-    ${isActive ? "ring-2 ring-blue-500 shadow-lg shadow-blue-500/50" : ""}`}
-  >
-    {label}
-  </button>
-);
+import backgroundImage from "./background.png"; // Import your background image
 
 const QRPayment = () => {
   const [mode, setMode] = useState(null);
-  const contractAddress = "0xYourContractAddressHere";
+  const contractAddress = "0xYourContractAddressHere"; // Replace with your contract address
 
   return (
     <div
       className="min-h-screen w-full"
       style={{
-        backgroundImage: `url(${backgroundImage})`, // Use the imported image
-        backgroundColor: "#0B062B", // Dark blue background color
-        backgroundSize: "cover", // Ensures the image covers the whole screen
-        backgroundPosition: "center", // Centers the background image
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundColor: "#0B062B",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
       {/* Header */}
@@ -37,22 +26,33 @@ const QRPayment = () => {
       <div className="container mx-auto px-4 py-12">
         {/* Main Content */}
         <div className="max-w-4xl mx-auto">
-          {/* Quick Actions Section */}
+          {/* Slider Section */}
           <div className="mb-16">
             <h2 className="text-[#32D8F9] text-xl font-medium mb-8 text-center">
               Quick Actions
             </h2>
-            <div className="flex justify-center gap-6">
-              <ActionButton
-                label="Pay"
-                onClick={() => setMode("pay")}
-                isActive={mode === "pay"}
-              />
-              <ActionButton
-                label="Receive"
-                onClick={() => setMode("receive")}
-                isActive={mode === "receive"}
-              />
+            <div className="flex justify-center items-center">
+              {/* Slider Container */}
+              <div className="relative w-64 h-10 flex items-center justify-between bg-[#1A1A1A] rounded-full shadow-lg">
+                {/* Left Button */}
+                <button
+                  onClick={() => setMode("pay")}
+                  className={`w-1/2 text-center py-2 rounded-full ${
+                    mode === "pay" ? "bg-[#32D8F9] text-white" : "bg-transparent text-[#d0cfd7]"
+                  }`}
+                >
+                  Scan QR Code
+                </button>
+                {/* Right Button */}
+                <button
+                  onClick={() => setMode("receive")}
+                  className={`w-1/2 text-center py-2 rounded-full ${
+                    mode === "receive" ? "bg-[#32D8F9] text-white" : "bg-transparent text-[#d0cfd7]"
+                  }`}
+                >
+                  Your QR Code
+                </button>
+              </div>
             </div>
           </div>
 
@@ -61,8 +61,8 @@ const QRPayment = () => {
             <div
               className="p-6 rounded-xl shadow-xl"
               style={{
-                border: "3px solid #32D8F9", // Cyan blue border
-                background: "rgba(50, 216, 249, 0.1)", // Light cyan background with opacity
+                border: "3px solid #32D8F9",
+                background: "rgba(50, 216, 249, 0.1)",
               }}
             >
               <div className="text-center rounded-xl mb-6">
